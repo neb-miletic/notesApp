@@ -24,8 +24,8 @@ public class DatabaseHelper  extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
 
-         String CREATE_USER_TABLE = "CREATE TABLE "  + Util.TABLE_NAME + " (" +
-                 Util.NOTES + " TEXT" + " )";
+         String CREATE_USER_TABLE = "CREATE TABLE "  + Util.TABLE_NAME + " (" +  Util.NOTES_ID + " INTEGER PRIMARY KEY AUTOINCREMENT , "
+                + Util.NOTES + " TEXT)";
 
          db.execSQL(CREATE_USER_TABLE);
 
@@ -46,14 +46,35 @@ public class DatabaseHelper  extends SQLiteOpenHelper {
     public long insertNotes (Notes notes) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
+        contentValues.put(Util.NOTES, notes.getNotes_id());
         contentValues.put(Util.NOTES, notes.getNotes());
         long newRowId = db.insert(Util.TABLE_NAME,null, contentValues);
+
         db.close();
         Log.d("Inserted","ID" + newRowId);
 
 
         return newRowId;
     }
+//
+//    public Notes getNotes(long id)
+//    {
+//         SQLiteDatabase db = this.getWritableDatabase();
+//
+//
+//        Cursor cursor = db.query(Util.TABLE_NAME,new String[]{Util.NOTES_ID}, Util.NOTES + "=?", new String[] {id}, null,null,null);
+//
+//        if(cursor != null)
+//            cursor.moveToFirst();
+//
+//
+//        return new Notes(
+//            Long.parseLong(cursor.getString(0)),
+//            cursor.getString(1));
+//
+//
+//
+//    }
 
     public List<Notes> fetchAllNotes () {
 
@@ -67,8 +88,8 @@ public class DatabaseHelper  extends SQLiteOpenHelper {
         if (cursor.moveToFirst()) {
             do {
                 Notes notes = new Notes();
-//                notes.setNotes_id(cursor.getInt(0));
-                notes.setNotes(cursor.getString(0));
+                notes.setNotes_id(cursor.getInt(0));
+                notes.setNotes(cursor.getString(1));
 
                 notesList.add(notes);
 
@@ -83,18 +104,17 @@ public class DatabaseHelper  extends SQLiteOpenHelper {
     public int updateNotes (Notes notes) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
-        Log.d("Edited", "Edited Title: -> "+ notes.getNotes());
+        Log.d("Edited", "Edited Title: -> "+ notes.getNotes() + notes.getNotes_id());
 
         contentValues.put(Util.NOTES, notes.getNotes());
 
-        return db.update(Util.TABLE_NAME, contentValues, Util.NOTES + "=?", new String[]{String.valueOf(notes.getNotes())});
+        return db.update(Util.TABLE_NAME, contentValues, Util.NOTES + "=?", new String[]{String.valueOf(notes.getNotes_id())});
 
     }
-    public void deleteNote(){
-        ContentValues contentValues = new ContentValues();
+    public void deleteNote(int id){
 
         SQLiteDatabase db = this.getWritableDatabase();
-        db.delete(Util.TABLE_NAME,Util.NOTES + "=?",new String[]{String.valueOf(contentValues)});
+        db.delete(Util.TABLE_NAME, Util.NOTES_ID + "=?",new String[]{String.valueOf(id)});
         db.close();
     }
 
